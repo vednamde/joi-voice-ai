@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Joi - Offline Voice AI</title>
+    <style>
+      /* ======= GLOBAL RESET ======= */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.85), rgba(20, 20, 20, 0.95));
+        overflow: hidden;
+      }
+
+      /* ======= BACKGROUND VIDEO ======= */
+      video {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1;
+        filter: brightness(0.4) contrast(1.2);
+      }
+
+      /* ======= CONTAINER ======= */
+      .container {
+        background: rgba(0, 0, 0, 0.75);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 35px;
+        width: 95%;
+        max-width: 600px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      }
+
+      h1 {
+        font-weight: 400;
+        letter-spacing: 1.5px;
+        font-size: 2.2em;
+        margin-bottom: 12px;
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+      }
+
+      p {
+        font-size: 1em;
+        opacity: 0.85;
+        margin-bottom: 25px;
+      }
+
+      /* ======= BUTTONS ======= */
+      .controls {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      button {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 500;
+        color: #fff;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+        transition: all 0.3s ease;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      /* ======= INPUT SECTION ======= */
+      .text-input-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      input[type="text"] {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 25px;
+        font-size: 16px;
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        width: 100%;
+        max-width: 350px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        transition: all 0.3s ease;
+      }
+
+      input[type="text"]:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+      }
+
+      input[type="text"]::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      /* ======= LOG CONSOLE ======= */
+      #log {
+        margin-top: 10px;
+        text-align: left;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        min-height: 160px;
+        white-space: pre-wrap;
+        overflow-y: auto;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        backdrop-filter: blur(5px);
+        box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      #log::-webkit-scrollbar {
+        width: 8px;
+      }
+      #log::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+      }
+      #log::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.5);
+      }
+
+      /* ======= RESPONSIVE ======= */
+      @media (max-width: 480px) {
+        h1 {
+          font-size: 1.8em;
+        }
+        input[type="text"] {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <video autoplay muted loop>
+      <source src="joi.mp4" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+
+    <div class="container">
+      <h1>💬 Joi (Offline Voice AI)</h1>
+      <p>Press Start and talk to Joi — she'll think with Ollama and speak with your system voice.</p>
+
+      <div class="controls">
+        <button id="start">🎙️ Start Listening</button>
+        <button id="stop">⏹️ Stop</button>
+      </div>
+
+      <div class="text-input-container">
+        <input type="text" id="textInput" placeholder="Type your message here..." />
+        <button id="sendText">📤 Send Text</button>
+      </div>
+
+      <div id="log">Say something to start...</div>
+    </div>
+
+    <script>
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const rec = new SpeechRecognition();
+
+      const logEl = document.getElementById("log");
+      const startBtn = document.getElementById("start");
+      const stopBtn = document.getElementById("stop");
+      const textInput = document.getElementById("textInput");
+      const sendTextBtn = document.getElementById("sendText");
+
+      rec.lang = "en-US";
+      rec.continuous = false;
+      rec.interimResults = false;
+
+      let listening = false;
+      let selectedModel = "llama3.2";
+
+      const voiceServer = "http://localhost:5005";
+      const ollamaServer = "http://127.0.0.1:11434";
+
+      function log(text) {
+        logEl.textContent += text + "\n";
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      async function detectModel() {
+        try {
+          const res = await fetch(`${ollamaServer}/api/tags`);
+          const data = await res.json();
+          if (!data.models || !data.models.length) {
+            log("⚠️ No models found in Ollama!");
+            return selectedModel;
+          }
+
+          const names = data.models.map((m) => m.name);
+          const priority = ["qwen3:8b", "deepseek-r1:8b", "llama3.2", "gemma3:4b", "gemma3:1b"];
+
+          for (const model of priority) {
+            if (names.includes(model)) {
+              selectedModel = model;
+              <!-- log(`✅ Using model: ${model}`); -->
+              return model;
+            }
+          }
+
+          selectedModel = names[0];
+          log(`✅ Using first available model: ${selectedModel}`);
+          return selectedModel;
+        } catch (err) {
+          console.error("Model detection failed:", err);
+          log("⚠️ Could not connect to Ollama API.");
+          return selectedModel;
+        }
+      }
+
+      async function askLLM(userText) {
+        try {
+          const model = await detectModel();
+          const response = await fetch(`${ollamaServer}/api/generate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model,
+              prompt: `You are Joi — a warm, emotional AI companion. Respond kindly and conversationally.\nUser: ${userText}\nJoi:`,
+            }),
+          });
+
+          if (!response.ok) throw new Error("HTTP " + response.status);
+
+          const text = await response.text();
+          const lines = text.trim().split("\n");
+          let fullReply = "";
+          for (const line of lines) {
+            try {
+              const json = JSON.parse(line);
+              if (json.response) fullReply += json.response;
+            } catch {}
+          }
+
+          fullReply = fullReply.trim();
+          return fullReply || "Hmm... I can't find words right now.";
+        } catch (err) {
+          console.error("Ollama error:", err);
+          return "I can't reach my brain right now 😅.";
+        }
+      }
+
+      async function speak(text) {
+        try {
+          const res = await fetch(`${voiceServer}/speak`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text }),
+          });
+          if (!res.ok) throw new Error("Voice server response: " + res.status);
+        } catch (err) {
+          console.error("Voice server error:", err);
+          log("⚠️ Voice server not reachable. Joi will stay quiet.");
+        }
+      }
+
+      rec.onresult = async (event) => {
+        const userSpeech = event.results[0][0].transcript;
+        log(`🧍 You: ${userSpeech}`);
+        const reply = await askLLM(userSpeech);
+        log(`🤖 Joi: ${reply}`);
+        await speak(reply);
+      };
+
+      rec.onerror = (event) => log("⚠️ Error: " + event.error);
+      rec.onend = () => {
+        listening = false;
+        log("🕹️ Listening stopped.");
+      };
+
+      startBtn.onclick = () => {
+        if (!listening) {
+          rec.start();
+          listening = true;
+          log("🎧 Listening...");
+        }
+      };
+
+      stopBtn.onclick = () => {
+        if (listening) {
+          rec.stop();
+          listening = false;
+        }
+      };
+
+      sendTextBtn.onclick = async () => {
+        const userText = textInput.value.trim();
+        if (userText) {
+          log(`🧍 You: ${userText}`);
+          textInput.value = "";
+          const reply = await askLLM(userText);
+          log(`🤖 Joi: ${reply}`);
+          await speak(reply);
+        }
+      };
+
+      textInput.onkeydown = (event) => {
+        if (event.key === "Enter") sendTextBtn.click();
+      };
+
+      detectModel();
+    </script>
+  </body>
+</html>

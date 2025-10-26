@@ -1,0 +1,5 @@
+- [ ] Add all project files to Git
+- [ ] Commit the changes with an initial message
+- [ ] Add GitHub remote origin
+- [ ] Rename branch to main
+- [ ] Push to GitHub
